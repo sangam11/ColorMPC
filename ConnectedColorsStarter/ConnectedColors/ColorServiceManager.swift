@@ -9,6 +9,11 @@
 import UIKit
 import MultipeerConnectivity
 
+protocol colorServiceManagerDelegate {
+    func connectedDeviceChanged(manager: ColorServiceManager, connectedDevices: [String])
+    func colorChanged(manager: ColorServiceManager, colorString: String)
+}
+
 class ColorServiceManager: NSObject {
     
     // service type should be unique
@@ -28,6 +33,7 @@ class ColorServiceManager: NSObject {
         return session
     }()
     
+    var delegate : colorServiceManagerDelegate?
     
     override init() {
         // initialize the advartiser And browser
@@ -43,6 +49,16 @@ class ColorServiceManager: NSObject {
         // start the functions
         self.serviceAdvartiser.startAdvertisingPeer()
         self.serviceBrowser.startBrowsingForPeers()
+    }
+    
+    func send(colorName:String) {
+        if session.connectedPeers.count > 0 {
+            do {
+                try self.session.send(colorName.data(using: .utf8)!, toPeers: session.connectedPeers, with: .reliable)
+            } catch let error {
+                print(error)
+            }
+        }
     }
     
     deinit {
@@ -85,10 +101,14 @@ extension ColorServiceManager : MCNearbyServiceBrowserDelegate {
 extension ColorServiceManager : MCSessionDelegate {
     func session(_ session: MCSession, peer peerID: MCPeerID, didChange state: MCSessionState) {
         print("the Peer \(peerID) changed the state \(state)")
+        self.delegate?.connectedDeviceChanged(manager: self, connectedDevices: session.connectedPeers.map{$0.displayName})
+        
     }
     
     func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
         print("did recieved the data \(data)")
+        let str = String(data: data, encoding: .utf8)!
+        self.delegate?.colorChanged(manager: self, colorString: str)
     }
     
     func session(_ session: MCSession, didReceive stream: InputStream, withName streamName: String, fromPeer peerID: MCPeerID) {
