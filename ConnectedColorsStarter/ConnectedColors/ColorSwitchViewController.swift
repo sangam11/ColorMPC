@@ -7,7 +7,7 @@ class ColorSwitchViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        colorService.delegate = self as? colorServiceManagerDelegate
+        colorService.delegate = self as colorServiceManagerDelegate
     }
 
     @IBAction func redTapped() {

@@ -16,7 +16,8 @@ protocol colorServiceManagerDelegate {
 
 class ColorServiceManager: NSObject {
     
-    // service type should be unique
+    // Service type must be a unique string, at most 15 characters long
+    // and can contain only ASCII lowercase letters, numbers and hyphens.
     private let colorServicetype = "example-color"
     
     // peerId is current device
@@ -29,7 +30,7 @@ class ColorServiceManager: NSObject {
     //create session property
     lazy var session : MCSession = {
         let session = MCSession(peer: self.myPeerId, securityIdentity: nil, encryptionPreference: .required)
-        session.delegate = self as? MCSessionDelegate
+        session.delegate = self as MCSessionDelegate
         return session
     }()
     
@@ -43,8 +44,8 @@ class ColorServiceManager: NSObject {
         super.init()
         
         // set the both delegates to self
-        self.serviceAdvartiser.delegate = self as? MCNearbyServiceAdvertiserDelegate
-        self.serviceBrowser.delegate = self as? MCNearbyServiceBrowserDelegate
+        self.serviceAdvartiser.delegate = self as MCNearbyServiceAdvertiserDelegate
+        self.serviceBrowser.delegate = self as MCNearbyServiceBrowserDelegate
         
         // start the functions
         self.serviceAdvartiser.startAdvertisingPeer()
